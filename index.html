@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generator Cover LHV - BBSPJPPI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#1a2b6d;
+    --blue:#2838a7;
+    --bg:#f3f5fb;
+    --card:#ffffff;
+    --border:#e2e6f2;
+    --accent:#2755d6;
+    --accent-hover:#1d43b0;
+    --text:#1c2340;
+    --muted:#6b7290;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  #root{min-height:100vh;}
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+  .header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .header h1{
+    font-size:26px;
+    font-weight:700;
+    margin:0 0 6px;
+    color:var(--navy);
+  }
+  .header p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .steps{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .step-pill{
+    padding:7px 16px;
+    border-radius:999px;
+    font-size:12.5px;
+    font-weight:600;
+    background:#e9edfb;
+    color:var(--muted);
+    border:1px solid transparent;
+  }
+  .step-pill.active{
+    background:var(--accent);
+    color:#fff;
+  }
+  .step-pill.done{
+    background:#dff3e6;
+    color:#1c8a4b;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:26px;
+    box-shadow:0 2px 10px rgba(30,40,90,0.04);
+  }
+  .card h2{
+    font-size:18px;
+    margin:0 0 4px;
+    color:var(--navy);
+  }
+  .card .sub{
+    color:var(--muted);
+    font-size:13px;
+    margin:0 0 20px;
+  }
+  .grid-cat{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:14px;
+  }
+  .cat-btn{
+    border:2px solid var(--border);
+    background:#fafbff;
+    border-radius:14px;
+    padding:20px 16px;
+    text-align:left;
+    cursor:pointer;
+    transition:all .15s ease;
+    font-family:inherit;
+  }
+  .cat-btn:hover{
+    border-color:var(--accent);
+    background:#f2f5ff;
+  }
+  .cat-btn.selected{
+    border-color:var(--accent);
+    background:#eef2ff;
+    box-shadow:0 0 0 3px rgba(39,85,214,0.12);
+  }
+  .cat-btn .cat-title{
+    font-weight:700;
+    font-size:15px;
+    color:var(--navy);
+    margin-bottom:4px;
+  }
+  .cat-btn .cat-desc{
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .grid-tpl{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:14px;
+  }
+  .tpl-btn{
+    border:2px solid var(--border);
+    border-radius:12px;
+    padding:8px;
+    cursor:pointer;
+    background:#fff;
+    text-align:center;
+    transition:all .15s ease;
+  }
+  .tpl-btn img{
+    width:100%;
+    border-radius:6px;
+    display:block;
+    border:1px solid #eee;
+  }
+  .tpl-btn .tpl-label{
+    font-size:11.5px;
+    margin-top:6px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .tpl-btn:hover{border-color:var(--accent);}
+  .tpl-btn.selected{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(39,85,214,0.12);
+  }
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:22px;
+    gap:10px;
+  }
+  .btn{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    padding:11px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn-primary{
+    background:var(--accent);
+    color:#fff;
+  }
+  .btn-primary:hover{background:var(--accent-hover);}
+  .btn-primary:disabled{
+    background:#c3cbe8;
+    cursor:not-allowed;
+  }
+  .btn-ghost{
+    background:#eef1fa;
+    color:var(--text);
+  }
+  .btn-ghost:hover{background:#e2e7f7;}
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 20px;
+  }
+  .form-grid .full{grid-column:1 / -1;}
+  @media (max-width:680px){
+    .form-grid{grid-template-columns:1fr;}
+  }
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .field .hint{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .field input[type=text], .field textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1.5px solid var(--border);
+    border-radius:9px;
+    font-family:inherit;
+    font-size:13.5px;
+    color:var(--text);
+    background:#fbfcff;
+  }
+  .field input[type=text]:focus, .field textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    background:#fff;
+  }
+  .field textarea{resize:vertical;min-height:64px;}
+  .upload-box{
+    border:2px dashed var(--border);
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    cursor:pointer;
+    background:#fafbff;
+    transition:all .15s ease;
+  }
+  .upload-box:hover{border-color:var(--accent);background:#f2f5ff;}
+  .upload-box.has-img{padding:10px;}
+  .upload-box img{
+    max-width:100%;
+    max-height:160px;
+    border-radius:8px;
+    display:block;
+    margin:0 auto;
+  }
+  .upload-box .up-text{
+    font-size:13px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .preview-wrap{
+    display:grid;
+    grid-template-columns:minmax(280px,380px) 1fr;
+    gap:24px;
+  }
+  @media (max-width:880px){
+    .preview-wrap{grid-template-columns:1fr;}
+  }
+  .canvas-holder{
+    background:#f3f5fb;
+    border-radius:14px;
+    padding:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--border);
+  }
+  .canvas-holder canvas{
+    width:100%;
+    max-width:360px;
+    height:auto;
+    border-radius:8px;
+    box-shadow:0 4px 18px rgba(20,30,70,0.14);
+  }
+  .export-row{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .breadcrumb{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:14px;
+  }
+  .breadcrumb b{color:var(--navy);}
+  .field-section-title{
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--accent);
+    font-weight:700;
+    margin:22px 0 10px;
+  }
+  .field-section-title:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react,env">
+const { useState, useRef, useEffect, useMemo, useCallback } = React;
+
+/* =========================================================================
+   KONFIGURASI KATEGORI COVER
+   ========================================================================= */
+const CATEGORIES = {
+  tkdn_sendiri: {
+    key: 'tkdn_sendiri',
+    title: 'TKDN Produksi Sendiri',
+    desc: 'LHV Nilai TKDN Barang - Produksi Sendiri',
+    group: 'tkdn',
+    fields: ['noLhv','namaPerusahaan','bidangUsaha','namaProduk'],
+    labelNamaProduk: 'Nama Produk',
+  },
+  tkdn_kerjasama: {
+    key: 'tkdn_kerjasama',
+    title: 'TKDN Kerja Sama Produksi',
+    desc: 'LHV Nilai TKDN Barang - Kerja Sama Produksi',
+    group: 'tkdn',
+    fields: ['noLhv','namaPerusahaan','namaPerusahaanIndustri','bidangUsaha','namaProduk'],
+    labelNamaProduk: 'Nama Produk',
+  },
+  bmp: {
+    key: 'bmp',
+    title: 'BMP',
+    desc: 'LHV Bobot Manfaat Perusahaan',
+    group: 'bmp',
+    fields: ['noLhv','namaPerusahaan'],
+  },
+  tkdn_jasa: {
+    key: 'tkdn_jasa',
+    title: 'TKDN Jasa',
+    desc: 'LHV TKDN Jasa Industri',
+    group: 'jasa',
+    fields: ['noLhv','namaPerusahaan','bidangUsaha','namaProduk'],
+    labelNamaProduk: 'Nama Jasa',
+  },
+};
+
+const TEMPLATES = {
+  tkdn: [
+    { id:'tkdn-1', src:'assets/tkdn-1.png' },
+    { id:'tkdn-2', src:'assets/tkdn-2.png' },
+    { id:'tkdn-3', src:'assets/tkdn-3.png' },
+    { id:'tkdn-4', src:'assets/tkdn-4.png' },
+    { id:'tkdn-5', src:'assets/tkdn-5.png' },
+  ],
+  bmp: [
+    { id:'bmp-1', src:'assets/bmp-1.png' },
+    { id:'bmp-2', src:'assets/bmp-2.png' },
+    { id:'bmp-3', src:'assets/bmp-3.png' },
+    { id:'bmp-4', src:'assets/bmp-4.png' },
+    { id:'bmp-5', src:'assets/bmp-5.png' },
+  ],
+  jasa: [
+    { id:'jasa-1', src:'assets/jasa-1.png' },
+  ],
+};
+
+/* =========================================================================
+   KONFIGURASI POSISI TEKS & BENTUK FOTO (hasil pengukuran dari template asli)
+   Canvas dasar berukuran 1414 x 2000 px (rasio semua template).
+   ========================================================================= */
+const CANVAS_W = 1414;
+const CANVAS_H = 2000;
+
+const COLOR_NAVY = '#262362';
+const COLOR_BLUE = '#2838a7';
+
+const POS = {
+  tkdn: {
+    marginX: 144,
+    noLhv: { x: 336, y: 313, fontSize: 27, color: COLOR_NAVY, weight: 700, maxWidth: 930 },
+    namaPerusahaan: { x: 144, yTop: 758, width: 900, fontSize: 27, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
+    bidangUsaha: { x: 144, yTop: 948, width: 1000, fontSize: 26, lineHeight: 46, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    namaProduk: { x: 144, yTop: 1207, width: 1000, fontSize: 26, lineHeight: 46, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    photo: {
+      type: 'polygon',
+      outer: [[1020,938],[669,1142],[669,1553],[1022,1757],[1373,1553],[1373,1142]],
+      centroid: [1021, 1347.5],
+      innerScale: 0.925,
+    },
+  },
+  bmp: {
+    marginX: 124,
+    noLhv: { x: 296, y: 322, fontSize: 24, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 124, yTop: 742, width: 900, fontSize: 26, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
+    photo: null,
+  },
+  jasa: {
+    marginX: 144,
+    noLhv: { x: 306, y: 408, fontSize: 22, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 144, yTop: 800, width: 850, fontSize: 27, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
+    bidangUsaha: { x: 144, yTop: 1112, width: 850, fontSize: 25, lineHeight: 44, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    namaProduk: { x: 144, yTop: 1251, width: 850, fontSize: 25, lineHeight: 44, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    photo: {
+      type: 'circle',
+      cx: 1010, cy: 1272, innerRadius: 316,
+    },
+  },
+};
+
+/* =========================================================================
+   UTIL: word-wrap & auto-shrink text ke dalam bounding box canvas
+   ========================================================================= */
+function wrapText(ctx, text, maxWidth) {
+  if (!text) return [];
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? current + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function drawWrappedText(ctx, text, cfg, fontFamily) {
+  if (!text) return;
+  let fontSize = cfg.fontSize;
+  let lines = [];
+  for (let attempt = 0; attempt < 6; attempt++) {
+    ctx.font = `${cfg.weight} ${fontSize}px ${fontFamily}`;
+    lines = wrapText(ctx, text, cfg.width);
+    if (lines.length <= cfg.maxLines) break;
+    fontSize -= 2;
+  }
+  if (lines.length > cfg.maxLines) {
+    lines = lines.slice(0, cfg.maxLines);
+    let last = lines[cfg.maxLines - 1];
+    while (ctx.measureText(last + '…').width > cfg.width && last.length > 0) {
+      last = last.slice(0, -1);
+    }
+    lines[cfg.maxLines - 1] = last + '…';
+  }
+  ctx.fillStyle = cfg.color;
+  ctx.textBaseline = 'alphabetic';
+  const lineHeight = cfg.lineHeight;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, cfg.x, cfg.yTop + fontSize * 0.9 + i * lineHeight);
+  });
+}
+
+function drawSingleLineAutoFit(ctx, text, x, y, maxWidth, fontSize, weight, color, fontFamily) {
+  if (!text) return;
+  let size = fontSize;
+  ctx.fillStyle = color;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    ctx.font = `${weight} ${size}px ${fontFamily}`;
+    if (ctx.measureText(text).width <= maxWidth || size <= 14) break;
+    size -= 1.5;
+  }
+  ctx.font = `${weight} ${size}px ${fontFamily}`;
+  ctx.fillText(text, x, y);
+}
+
+/* =========================================================================
+   UTIL: menggambar foto ke bentuk hexagon / lingkaran (object-fit: cover)
+   ========================================================================= */
+function drawImageCover(ctx, img, cx, cy, w, h) {
+  const imgRatio = img.width / img.height;
+  const boxRatio = w / h;
+  let sx, sy, sw, sh;
+  if (imgRatio > boxRatio) {
+    sh = img.height;
+    sw = sh * boxRatio;
+    sx = (img.width - sw) / 2;
+    sy = 0;
+  } else {
+    sw = img.width;
+    sh = sw / boxRatio;
+    sx = 0;
+    sy = (img.height - sh) / 2;
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, cx - w / 2, cy - h / 2, w, h);
+}
+
+function clipPolygon(ctx, points) {
+  ctx.beginPath();
+  points.forEach(([px, py], i) => {
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.closePath();
+  ctx.clip();
+}
+
+function drawPhotoShape(ctx, img, shapeCfg) {
+  if (!img || !shapeCfg) return;
+  ctx.save();
+  if (shapeCfg.type === 'polygon') {
+    const [cx, cy] = shapeCfg.centroid;
+    const inner = shapeCfg.outer.map(([x, y]) => [
+      cx + (x - cx) * shapeCfg.innerScale,
+      cy + (y - cy) * shapeCfg.innerScale,
+    ]);
+    const xs = inner.map(p => p[0]);
+    const ys = inner.map(p => p[1]);
+    const w = Math.max(...xs) - Math.min(...xs);
+    const h = Math.max(...ys) - Math.min(...ys);
+    clipPolygon(ctx, inner);
+    drawImageCover(ctx, img, cx, cy, w, h);
+  } else if (shapeCfg.type === 'circle') {
+    ctx.beginPath();
+    ctx.arc(shapeCfg.cx, shapeCfg.cy, shapeCfg.innerRadius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    const d = shapeCfg.innerRadius * 2;
+    drawImageCover(ctx, img, shapeCfg.cx, shapeCfg.cy, d, d);
+  }
+  ctx.restore();
+}
+
+/* =========================================================================
+   KOMPONEN: CoverCanvas - render utama
+   ========================================================================= */
+function useImage(src) {
+  const [img, setImg] = useState(null);
+  useEffect(() => {
+    if (!src) { setImg(null); return; }
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => setImg(image);
+    image.src = src;
+    return () => setImg(null);
+  }, [src]);
+  return img;
+}
+
+function CoverCanvas({ categoryKey, templateSrc, formData, photoDataUrl, canvasRef }) {
+  const category = CATEGORIES[categoryKey];
+  const posCfg = POS[category.group];
+  const bgImg = useImage(templateSrc);
+  const photoImg = useImage(photoDataUrl);
+  const fontFamily = "'Poppins', sans-serif";
+
+  const render = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !bgImg) return;
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.drawImage(bgImg, 0, 0, CANVAS_W, CANVAS_H);
+
+    // Foto (digambar dulu, di bawah, karena border bentuk template ada di atasnya)
+    if (posCfg.photo && photoImg) {
+      drawPhotoShape(ctx, photoImg, posCfg.photo);
+      // Re-draw template on top area outside the shape is not needed because
+      // we clip drawing to inner shape only — border stays visible naturally
+      // only if template was drawn first. Since template already drawn first
+      // above, and we draw photo after, order is correct.
+    }
+
+    // No. LHV
+    if (formData.noLhv) {
+      drawSingleLineAutoFit(
+        ctx, formData.noLhv,
+        posCfg.noLhv.x, posCfg.noLhv.y, posCfg.noLhv.maxWidth,
+        posCfg.noLhv.fontSize, posCfg.noLhv.weight, posCfg.noLhv.color, fontFamily
+      );
+    }
+
+    // Nama Perusahaan (+ Nama Perusahaan Industri jika ada)
+    if (formData.namaPerusahaan) {
+      const cfg = posCfg.namaPerusahaan;
+      const lines = [];
+      ctx.font = `${cfg.weight} ${cfg.fontSize}px ${fontFamily}`;
+      lines.push(...wrapText(ctx, formData.namaPerusahaan, cfg.width).slice(0, 1));
+      if (formData.namaPerusahaanIndustri) {
+        const prefixed = posCfg.namaPerusahaanIndustriPrefix + formData.namaPerusahaanIndustri;
+        lines.push(...wrapText(ctx, prefixed, cfg.width).slice(0, 1));
+      }
+      ctx.fillStyle = cfg.color;
+      lines.forEach((line, i) => {
+        ctx.fillText(line, cfg.x, cfg.yTop + cfg.fontSize * 0.9 + i * cfg.lineHeight);
+      });
+    }
+
+    // Bidang Usaha
+    if (formData.bidangUsaha && posCfg.bidangUsaha) {
+      drawWrappedText(ctx, formData.bidangUsaha, posCfg.bidangUsaha, fontFamily);
+    }
+
+    // Nama Produk / Nama Jasa
+    if (formData.namaProduk && posCfg.namaProduk) {
+      drawWrappedText(ctx, formData.namaProduk, posCfg.namaProduk, fontFamily);
+    }
+  }, [bgImg, photoImg, formData, posCfg, fontFamily, canvasRef]);
+
+  useEffect(() => {
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(render);
+    } else {
+      render();
+    }
+  }, [render]);
+
+  return null;
+}
+
+/* =========================================================================
+   KOMPONEN: PILIH KATEGORI
+   ========================================================================= */
+function StepCategory({ selected, onSelect }) {
+  return (
+    <div className="card">
+      <h2>1. Pilih Jenis Cover</h2>
+      <p className="sub">Tentukan jenis Laporan Hasil Verifikasi yang akan dibuat covernya.</p>
+      <div className="grid-cat">
+        {Object.values(CATEGORIES).map(cat => (
+          <button
+            key={cat.key}
+            className={"cat-btn" + (selected === cat.key ? " selected" : "")}
+            onClick={() => onSelect(cat.key)}
+          >
+            <div className="cat-title">{cat.title}</div>
+            <div className="cat-desc">{cat.desc}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   KOMPONEN: PILIH TEMPLATE / VARIAN
+   ========================================================================= */
+function StepTemplate({ categoryKey, selectedTpl, onSelect, onBack, onNext }) {
+  const category = CATEGORIES[categoryKey];
+  const templates = TEMPLATES[category.group];
+  return (
+    <div className="card">
+      <div className="breadcrumb"><b>{category.title}</b> &middot; pilih varian desain</div>
+      <h2>2. Pilih Varian Cover</h2>
+      <p className="sub">
+        {templates.length > 1
+          ? `Tersedia ${templates.length} varian desain untuk ${category.title}.`
+          : `Varian desain untuk ${category.title}.`}
+      </p>
+      <div className="grid-tpl">
+        {templates.map((tpl, idx) => (
+          <div
+            key={tpl.id}
+            className={"tpl-btn" + (selectedTpl === tpl.id ? " selected" : "")}
+            onClick={() => onSelect(tpl.id)}
+          >
+            <img src={tpl.src} alt={tpl.id} />
+            <div className="tpl-label">Varian {idx + 1}</div>
+          </div>
+        ))}
+      </div>
+      <div className="nav-row">
+        <button className="btn btn-ghost" onClick={onBack}>&larr; Kembali</button>
+        <button className="btn btn-primary" disabled={!selectedTpl} onClick={onNext}>Lanjut &rarr;</button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   KOMPONEN: FORM ISIAN + PREVIEW
+   ========================================================================= */
+function PhotoUpload({ photoDataUrl, onChange, shapeLabel }) {
+  const inputRef = useRef(null);
+  const handleFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(reader.result);
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div className="field full">
+      <label>Foto Produk / Perusahaan (untuk bentuk {shapeLabel})</label>
+      <div
+        className={"upload-box" + (photoDataUrl ? " has-img" : "")}
+        onClick={() => inputRef.current && inputRef.current.click()}
+      >
+        {photoDataUrl
+          ? <img src={photoDataUrl} alt="preview" />
+          : <div className="up-text">Klik untuk upload foto (JPG/PNG)</div>}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFile}
+      />
+      <div className="hint">Foto akan otomatis dipotong &amp; disesuaikan ke bentuk {shapeLabel} pada cover.</div>
+    </div>
+  );
+}
+
+function StepForm({ categoryKey, templateId, onBack, onRestart }) {
+  const category = CATEGORIES[categoryKey];
+  const templates = TEMPLATES[category.group];
+  const tpl = templates.find(t => t.id === templateId) || templates[0];
+  const posCfg = POS[category.group];
+  const hasPhoto = !!posCfg.photo;
+
+  const [formData, setFormData] = useState({
+    noLhv: '',
+    namaPerusahaan: '',
+    namaPerusahaanIndustri: '',
+    bidangUsaha: '',
+    namaProduk: '',
+  });
+  const [photoDataUrl, setPhotoDataUrl] = useState(null);
+  const canvasRef = useRef(null);
+
+  const setField = (key) => (e) => setFormData(f => ({ ...f, [key]: e.target.value }));
+
+  const showField = (name) => category.fields.includes(name);
+
+  const handleExportPng = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    const filename = `Cover_${category.title.replace(/\s+/g,'_')}_${(formData.noLhv || 'LHV').replace(/[^\w-]+/g,'_')}.png`;
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+  };
+
+  const handleExportPdf = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [CANVAS_W, CANVAS_H],
+    });
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H);
+    const filename = `Cover_${category.title.replace(/\s+/g,'_')}_${(formData.noLhv || 'LHV').replace(/[^\w-]+/g,'_')}.pdf`;
+    pdf.save(filename);
+  };
+
+  return (
+    <div>
+      <div className="breadcrumb"><b>{category.title}</b> &middot; Varian {templates.findIndex(t=>t.id===templateId)+1}</div>
+      <div className="preview-wrap">
+        <div>
+          <div className="card" style={{ padding: 16 }}>
+            <div className="canvas-holder">
+              <canvas ref={canvasRef}></canvas>
+              <CoverCanvas
+                categoryKey={categoryKey}
+                templateSrc={tpl.src}
+                formData={formData}
+                photoDataUrl={photoDataUrl}
+                canvasRef={canvasRef}
+              />
+            </div>
+            <div className="export-row">
+              <button className="btn btn-primary" onClick={handleExportPng}>Unduh PNG</button>
+              <button className="btn btn-primary" onClick={handleExportPdf}>Unduh PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>3. Isi Data Cover</h2>
+          <p className="sub">Isian akan langsung tampil pada pratinjau cover di samping.</p>
+
+          <div className="field-section-title">Informasi Umum</div>
+          <div className="form-grid">
+            <div className="field full">
+              <label>No. LHV</label>
+              <input type="text" placeholder="Contoh: TKDN2026-9-BBSPJPPI-00123-AP"
+                value={formData.noLhv} onChange={setField('noLhv')} />
+            </div>
+            <div className="field full">
+              <label>Nama Perusahaan</label>
+              <input type="text" placeholder="Contoh: PT. Contoh Industri Sejahtera"
+                value={formData.namaPerusahaan} onChange={setField('namaPerusahaan')} />
+            </div>
+            {showField('namaPerusahaanIndustri') && (
+              <div className="field full">
+                <label>Nama Perusahaan Industri (Kerja Sama)</label>
+                <input type="text" placeholder="Contoh: PT. Mitra Produksi Jaya"
+                  value={formData.namaPerusahaanIndustri} onChange={setField('namaPerusahaanIndustri')} />
+              </div>
+            )}
+          </div>
+
+          {(showField('bidangUsaha') || showField('namaProduk')) && (
+            <>
+              <div className="field-section-title">Detail {category.group === 'jasa' ? 'Jasa' : 'Barang'}</div>
+              <div className="form-grid">
+                {showField('bidangUsaha') && (
+                  <div className="field full">
+                    <label>Bidang Usaha</label>
+                    <textarea placeholder="Contoh: KBLI 25120-Industri Barang dari Logam Untuk Bahan Konstruksi"
+                      value={formData.bidangUsaha} onChange={setField('bidangUsaha')} />
+                  </div>
+                )}
+                {showField('namaProduk') && (
+                  <div className="field full">
+                    <label>{category.labelNamaProduk || 'Nama Produk'}</label>
+                    <textarea placeholder={category.group === 'jasa' ? 'Contoh: Jasa Instalasi dan Pemeliharaan Mesin Industri' : 'Contoh: Pipa Baja Galvanis'}
+                      value={formData.namaProduk} onChange={setField('namaProduk')} />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {hasPhoto && (
+            <>
+              <div className="field-section-title">Foto</div>
+              <div className="form-grid">
+                <PhotoUpload
+                  photoDataUrl={photoDataUrl}
+                  onChange={setPhotoDataUrl}
+                  shapeLabel={posCfg.photo.type === 'circle' ? 'lingkaran' : 'heksagon'}
+                />
+              </div>
+            </>
+          )}
+
+          <div className="nav-row">
+            <button className="btn btn-ghost" onClick={onBack}>&larr; Ganti Varian</button>
+            <button className="btn btn-ghost" onClick={onRestart}>Mulai Ulang</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   APP ROOT
+   ========================================================================= */
+function App() {
+  const [step, setStep] = useState(1);
+  const [categoryKey, setCategoryKey] = useState(null);
+  const [templateId, setTemplateId] = useState(null);
+
+  const restart = () => {
+    setStep(1);
+    setCategoryKey(null);
+    setTemplateId(null);
+  };
+
+  return (
+    <div className="app">
+      <div className="header">
+        <h1>Generator Cover LHV</h1>
+        <p>BBSPJPPI &middot; Balai Besar Standardisasi dan Pelayanan Jasa Pencegahan Pencemaran Industri</p>
+      </div>
+
+      <div className="steps">
+        <span className={"step-pill " + (step === 1 ? "active" : step > 1 ? "done" : "")}>1. Jenis Cover</span>
+        <span className={"step-pill " + (step === 2 ? "active" : step > 2 ? "done" : "")}>2. Varian</span>
+        <span className={"step-pill " + (step === 3 ? "active" : "")}>3. Isi &amp; Unduh</span>
+      </div>
+
+      {step === 1 && (
+        <StepCategory
+          selected={categoryKey}
+          onSelect={(key) => { setCategoryKey(key); setTemplateId(null); setStep(2); }}
+        />
+      )}
+
+      {step === 2 && categoryKey && (
+        <StepTemplate
+          categoryKey={categoryKey}
+          selectedTpl={templateId}
+          onSelect={setTemplateId}
+          onBack={() => setStep(1)}
+          onNext={() => setStep(3)}
+        />
+      )}
+
+      {step === 3 && categoryKey && templateId && (
+        <StepForm
+          categoryKey={categoryKey}
+          templateId={templateId}
+          onBack={() => setStep(2)}
+          onRestart={restart}
+        />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
