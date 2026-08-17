@@ -371,11 +371,13 @@ const COLOR_BLUE = '#2838a7';
 const POS = {
   tkdn: {
     marginX: 144,
-    noLhv: { x: 336, y: 313, fontSize: 35, color: COLOR_NAVY, weight: 700, maxWidth: 930 },
-    namaPerusahaan: { x: 144, yTop: 758, width: 900, fontSize: 30, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    // Ukuran font No LHV disamakan dengan label template (dinaikkan dari 27 ke 34)
+    noLhv: { x: 336, y: 313, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 930 },
+    // Ukuran font isian dinaikkan ke 30 agar natural wrapping-nya rapi
+    namaPerusahaan: { x: 144, yTop: 758, width: 900, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
-    bidangUsaha: { x: 144, yTop: 948, width: 600, fontSize: 30, lineHeight: 46, color: COLOR_BLUE, weight: 600, maxLines: 3 },
-    namaProduk: { x: 144, yTop: 1207, width: 600, fontSize: 30, lineHeight: 46, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    bidangUsaha: { x: 144, yTop: 948, width: 1000, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    namaProduk: { x: 144, yTop: 1207, width: 1000, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     photo: {
       type: 'polygon',
       outer: [[1020,938],[669,1142],[669,1553],[1022,1757],[1373,1553],[1373,1142]],
@@ -385,18 +387,18 @@ const POS = {
   },
   bmp: {
     marginX: 124,
-    noLhv: { x: 296, y: 322, fontSize: 35, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
-    namaPerusahaan: { x: 124, yTop: 742, width: 900, fontSize: 26, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    noLhv: { x: 296, y: 322, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 124, yTop: 742, width: 900, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
     photo: null,
   },
   jasa: {
     marginX: 144,
-    noLhv: { x: 306, y: 408, fontSize: 30, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
-    namaPerusahaan: { x: 144, yTop: 800, width: 850, fontSize: 30, lineHeight: 38, color: COLOR_BLUE, weight: 600, maxLines: 2 },
+    noLhv: { x: 306, y: 408, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 144, yTop: 800, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
-    bidangUsaha: { x: 144, yTop: 1112, width: 850, fontSize: 30, lineHeight: 44, color: COLOR_BLUE, weight: 600, maxLines: 3 },
-    namaProduk: { x: 144, yTop: 1251, width: 850, fontSize: 30, lineHeight: 44, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    bidangUsaha: { x: 144, yTop: 1112, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    namaProduk: { x: 144, yTop: 1251, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     photo: {
       type: 'circle',
       cx: 1010, cy: 1272, innerRadius: 316,
@@ -571,15 +573,20 @@ function CoverCanvas({ categoryKey, templateSrc, formData, photoDataUrl, canvasR
     }
 
     // Nama Perusahaan (+ Nama Perusahaan Industri jika ada)
+    // Nama Perusahaan (+ Nama Perusahaan Industri jika ada)
     if (formData.namaPerusahaan) {
       const cfg = posCfg.namaPerusahaan;
       const lines = [];
       ctx.font = `${cfg.weight} ${cfg.fontSize}px ${fontFamily}`;
-      lines.push(...wrapText(ctx, formData.namaPerusahaan, cfg.width).slice(0, 1));
+      
+      // PERBAIKAN: .slice(0, 1) dihapus agar teks bebas turun baris sesuai width
+      lines.push(...wrapText(ctx, formData.namaPerusahaan, cfg.width));
+      
       if (formData.namaPerusahaanIndustri) {
         const prefixed = posCfg.namaPerusahaanIndustriPrefix + formData.namaPerusahaanIndustri;
-        lines.push(...wrapText(ctx, prefixed, cfg.width).slice(0, 1));
+        lines.push(...wrapText(ctx, prefixed, cfg.width));
       }
+      
       ctx.fillStyle = cfg.color;
       lines.forEach((line, i) => {
         ctx.fillText(line, cfg.x, cfg.yTop + cfg.fontSize * 0.9 + i * cfg.lineHeight);
