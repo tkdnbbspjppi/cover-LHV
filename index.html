@@ -469,7 +469,7 @@ function drawSingleLineAutoFit(ctx, text, x, y, maxWidth, fontSize, weight, colo
 }
 
 /* =========================================================================
-   UTIL: menggambar foto ke bentuk hexagon / lingkaran (object-fit: cover)
+    / lingkaran (object-fit: cover)
    ========================================================================= */
 function drawImageCover(ctx, img, cx, cy, w, h) {
   const imgRatio = img.width / img.height;
@@ -498,6 +498,9 @@ function clipPolygon(ctx, points) {
   ctx.clip();
 }
 
+/* =========================================================================
+   UTIL: menggambar foto ke bentuk hexagon / lingkaran (object-fit: contain)
+   ========================================================================= */
 function drawImageFitCentered(ctx, img, cx, cy, w, h) {
   // Beri warna latar putih pada area bingkai
   ctx.fillStyle = '#ffffff';
@@ -541,18 +544,17 @@ function drawPhotoShape(ctx, img, shapeCfg) {
     const w = Math.max(...xs) - Math.min(...xs);
     const h = Math.max(...ys) - Math.min(...ys);
     clipPolygon(ctx, inner);
-    drawImageFitCentered(ctx, img, cx, cy, w, h); // Memanggil fungsi baru
+    drawImageFitCentered(ctx, img, cx, cy, w, h);
   } else if (shapeCfg.type === 'circle') {
     ctx.beginPath();
     ctx.arc(shapeCfg.cx, shapeCfg.cy, shapeCfg.innerRadius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
     const d = shapeCfg.innerRadius * 2;
-    drawImageFitCentered(ctx, img, shapeCfg.cx, shapeCfg.cy, d, d); // Memanggil fungsi baru
+    drawImageFitCentered(ctx, img, shapeCfg.cx, shapeCfg.cy, d, d);
   }
   ctx.restore();
 }
-
 /* =========================================================================
    KOMPONEN: CoverCanvas - render utama
    ========================================================================= */
