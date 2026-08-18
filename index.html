@@ -601,11 +601,21 @@ function CoverCanvas({ categoryKey, templateSrc, formData, photoDataUrl, canvasR
 
     // Tahun
     if (posCfg.tahun) {
-      const currentYear = new Date().getFullYear().toString(); 
+      // Default menggunakan tahun saat ini jika input masih kosong
+      let displayYear = new Date().getFullYear().toString(); 
+      
+      // Deteksi 4 digit angka pertama dari input No. LHV (misal: "TKDN2026" -> "2026")
+      if (formData.noLhv) {
+        const matchYear = formData.noLhv.match(/\d{4}/);
+        if (matchYear) {
+          displayYear = matchYear[0];
+        }
+      }
+
       ctx.font = `${posCfg.tahun.weight} ${posCfg.tahun.fontSize}px ${fontFamily}`;
       ctx.fillStyle = posCfg.tahun.color;
       // Menggunakan titik x dari konfigurasi agar sejajar di kiri
-      ctx.fillText(currentYear, posCfg.tahun.x, posCfg.tahun.y); 
+      ctx.fillText(displayYear, posCfg.tahun.x, posCfg.tahun.y); 
     }
   }, [bgImg, photoImg, formData, posCfg, fontFamily, canvasRef]);
   
