@@ -380,7 +380,8 @@ const POS = {
       centroid: [1021, 1347.5],
       innerScale: 0.925,
     },
-    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
+    // Posisi diubah ke kiri (x: 144), agak naik (y: 1850), font diperbesar
+    tahun: { x: 144, y: 1850, fontSize: 48, color: COLOR_NAVY, weight: 800 }
   },
   bmp: {
     marginX: 124,
@@ -388,7 +389,8 @@ const POS = {
     namaPerusahaan: { x: 124, yTop: 742, width: 700, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
     photo: null,
-    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
+    // Posisi diubah ke kiri (x: 124 menyesuaikan margin BMP)
+    tahun: { x: 124, y: 1850, fontSize: 48, color: COLOR_NAVY, weight: 800 }
   },
   jasa: {
     marginX: 144,
@@ -401,7 +403,8 @@ const POS = {
       type: 'circle',
       cx: 1010, cy: 1272, innerRadius: 316,
     },
-    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
+    // Posisi diubah ke kiri (x: 144)
+    tahun: { x: 144, y: 1850, fontSize: 48, color: COLOR_NAVY, weight: 800 }
   },
 };
 
@@ -601,9 +604,8 @@ function CoverCanvas({ categoryKey, templateSrc, formData, photoDataUrl, canvasR
       const currentYear = new Date().getFullYear().toString(); 
       ctx.font = `${posCfg.tahun.weight} ${posCfg.tahun.fontSize}px ${fontFamily}`;
       ctx.fillStyle = posCfg.tahun.color;
-      ctx.textAlign = 'center'; 
-      ctx.fillText(currentYear, CANVAS_W / 2, posCfg.tahun.y); 
-      ctx.textAlign = 'left'; 
+      // Menggunakan titik x dari konfigurasi agar sejajar di kiri
+      ctx.fillText(currentYear, posCfg.tahun.x, posCfg.tahun.y); 
     }
   }, [bgImg, photoImg, formData, posCfg, fontFamily, canvasRef]);
   
