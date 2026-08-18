@@ -633,8 +633,25 @@ function CoverCanvas({ categoryKey, templateSrc, formData, photoDataUrl, canvasR
     if (formData.namaProduk && posCfg.namaProduk) {
       drawWrappedText(ctx, formData.namaProduk, posCfg.namaProduk, fontFamily);
     }
-  }, [bgImg, photoImg, formData, posCfg, fontFamily, canvasRef]);
 
+    // ... (kode bidang usaha & nama produk sebelumnya) ...
+    if (formData.namaProduk && posCfg.namaProduk) {
+      drawWrappedText(ctx, formData.namaProduk, posCfg.namaProduk, fontFamily);
+    }
+
+    // --- TAMBAHKAN KODE TAHUN DI SINI ---
+    if (posCfg.tahun) {
+      const currentYear = new Date().getFullYear().toString(); // Otomatis ambil tahun berjalan
+      ctx.font = `${posCfg.tahun.weight} ${posCfg.tahun.fontSize}px ${fontFamily}`;
+      ctx.fillStyle = posCfg.tahun.color;
+      ctx.textAlign = 'center'; // Teks rata tengah
+      // Gambar tahun persis di bagian bawah tengah canvas
+      ctx.fillText(currentYear, CANVAS_W / 2, posCfg.tahun.y); 
+      ctx.textAlign = 'left'; // Kembalikan default
+    }
+  }, [bgImg, photoImg, formData, posCfg, fontFamily, canvasRef]);
+  
+    
   useEffect(() => {
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(render);
