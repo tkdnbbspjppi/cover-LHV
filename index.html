@@ -371,38 +371,40 @@ const COLOR_BLUE = '#2838a7';
 const POS = {
   tkdn: {
     marginX: 144,
-    // Ukuran font No LHV disamakan dengan label template (dinaikkan dari 27 ke 34)
-    noLhv: { x: 336, y: 313, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 930 },
-    // Ukuran font isian dinaikkan ke 30 agar natural wrapping-nya rapi
-    namaPerusahaan: { x: 144, yTop: 758, width: 900, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    noLhv: { x: 336, y: 313, fontSize: 40, color: COLOR_NAVY, weight: 700, maxWidth: 930 },
+    // Lebar (width) dikurangi jadi 520 agar tidak menabrak batas merah / segi enam
+    namaPerusahaan: { x: 144, yTop: 758, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
-    bidangUsaha: { x: 144, yTop: 948, width: 1000, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
-    namaProduk: { x: 144, yTop: 1207, width: 1000, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    bidangUsaha: { x: 144, yTop: 948, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 4 },
+    namaProduk: { x: 144, yTop: 1207, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 4 },
     photo: {
       type: 'polygon',
       outer: [[1020,938],[669,1142],[669,1553],[1022,1757],[1373,1553],[1373,1142]],
       centroid: [1021, 1347.5],
       innerScale: 0.925,
     },
+    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
   },
   bmp: {
     marginX: 124,
-    noLhv: { x: 296, y: 322, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
-    namaPerusahaan: { x: 124, yTop: 742, width: 900, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    noLhv: { x: 296, y: 322, fontSize: 40, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 124, yTop: 742, width: 700, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
     photo: null,
+    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
   },
   jasa: {
     marginX: 144,
-    noLhv: { x: 306, y: 408, fontSize: 34, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
-    namaPerusahaan: { x: 144, yTop: 800, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    noLhv: { x: 306, y: 408, fontSize: 40, color: COLOR_NAVY, weight: 700, maxWidth: 950 },
+    namaPerusahaan: { x: 144, yTop: 800, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
     namaPerusahaanIndustriPrefix: 'Kerjasama dengan: ',
-    bidangUsaha: { x: 144, yTop: 1112, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
-    namaProduk: { x: 144, yTop: 1251, width: 850, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 3 },
+    bidangUsaha: { x: 144, yTop: 1112, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 4 },
+    namaProduk: { x: 144, yTop: 1251, width: 520, fontSize: 30, lineHeight: 42, color: COLOR_BLUE, weight: 600, maxLines: 4 },
     photo: {
       type: 'circle',
       cx: 1010, cy: 1272, innerRadius: 316,
     },
+    tahun: { y: 1900, fontSize: 36, color: COLOR_NAVY, weight: 700 }
   },
 };
 
@@ -496,6 +498,35 @@ function clipPolygon(ctx, points) {
   ctx.clip();
 }
 
+function drawImageFitCentered(ctx, img, cx, cy, w, h) {
+  // Beri warna latar putih pada area bingkai
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  const imgRatio = img.width / img.height;
+  const boxRatio = w / h;
+  let drawW, drawH;
+  
+  // Logika fit (contain) agar gambar utuh dan berada di tengah
+  if (imgRatio > boxRatio) {
+    drawW = w;
+    drawH = w / imgRatio;
+  } else {
+    drawH = h;
+    drawW = h * imgRatio;
+  }
+  ctx.drawImage(img, 0, 0, img.width, img.height, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+}
+
+function clipPolygon(ctx, points) {
+  ctx.beginPath();
+  points.forEach(([px, py], i) => {
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.closePath();
+  ctx.clip();
+}
+
 function drawPhotoShape(ctx, img, shapeCfg) {
   if (!img || !shapeCfg) return;
   ctx.save();
@@ -510,14 +541,14 @@ function drawPhotoShape(ctx, img, shapeCfg) {
     const w = Math.max(...xs) - Math.min(...xs);
     const h = Math.max(...ys) - Math.min(...ys);
     clipPolygon(ctx, inner);
-    drawImageCover(ctx, img, cx, cy, w, h);
+    drawImageFitCentered(ctx, img, cx, cy, w, h); // Memanggil fungsi baru
   } else if (shapeCfg.type === 'circle') {
     ctx.beginPath();
     ctx.arc(shapeCfg.cx, shapeCfg.cy, shapeCfg.innerRadius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
     const d = shapeCfg.innerRadius * 2;
-    drawImageCover(ctx, img, shapeCfg.cx, shapeCfg.cy, d, d);
+    drawImageFitCentered(ctx, img, shapeCfg.cx, shapeCfg.cy, d, d); // Memanggil fungsi baru
   }
   ctx.restore();
 }
